@@ -152,15 +152,38 @@ function App() {
     const [uploadState, setUploadState] = useState(true)
     const [fileInfo, setFileInfo] = useState({})
     return (
-        <div className={`h-full grid grid-cols-1 grid-rows-${fileInfo.name ? 5 : 4}`}>
-            <div></div>
+        <div className={`h-full grid grid-cols-1 grid-rows-${fileInfo.name ? 6 : 6}`}>
+            <div
+                style={{
+                    // backgroundImage: `url('https://lh3.googleusercontent.com/FyEaMEZpwgCr99PzAg6ArHo-E2kgSwa1KMH0xRvBeCsrBfYF2kIDV7Eob6zJelGlXCQvyKf2rnpEM_8jccVkKhdeEMYmF-f4bRNWI-8=s250'})`,
+                    backgroundImage: "url('./src/assets/bg-storage.jpg')",
+                    backgroundSize: "cover",
+                    backgroundPosition: "center center",
+                    height: "100vh",
+                    opacity: `${fileInfo.name?0.6:0.5}`,
+                    webkitMaskImage: "linear-gradient(to top, transparent 10%, black 55%)",
+                    // background: "linear-gradient(transparent, #FFF) left repeat",
+                    // webkitMaskImage: "linear-gradient(rgba(213, 226, 169, 0.8), transparent)",
+                    filter: `blur(${fileInfo.name?4:1}px)`
+                }}
+                className="relative"
+            >
+
+            </div>
+            <div className={`${fileInfo.name ? ' row-span-2' : 'relative  row-span-3'} text-center`}>
+                <p className="text-5xl text-center font-bold mt-20 text-gray-700">THE BEST STORAGE SCHEME</p>
+                <p className={`text-xl text-gray-600 ${fileInfo.name ? 'hidden' : 'block'}`}>Based on Game of Theory, Oracle, Blockchain, Merkle tree...&#127799;</p>
+            </div>
+
+
+            {/* </div> */}
             {
                 fileInfo.name ?
                     (
                         <div className='grid grid-rows-auto grid-cols-9 text-center px-40 gap-12' >
                             <div className="col-span-4">
                                 <p className='relative top-3 bg-white m-auto w-32 z-10'>Basic Info</p>
-                                <div className='relative text-left border-dashed border-2 border-black rounded-lg px-20 py-10'>
+                                <div className='relative text-left border-dashed border-2 border-black rounded-lg px-20 py-10 bg-white'>
                                     <p>File Name: {fileInfo.name}</p>
                                     <p>File Size: {fileInfo.size} bytes ({(fileInfo.size / 1024).toFixed(2)} KB)</p>
                                     <p>Merkle Slices: {Math.round(fileInfo.size / 16) + 1} pieces</p>
@@ -193,12 +216,15 @@ function App() {
                             </div>
                         </div>
 
-                    ) : ""
-            }
-            <div className={`w-1/2 m-auto ${uploadState ? "block" : "hidden"}`}>
+                    ) : (
+                        <div className="row-span-1 flex justify-center items-center">
+                            <div className="block  w-1/4">
+                                <Upload style={{ background: "transparent" }} className='' trigger={getFileInfo} />
+                            </div>
+                        </div>
 
-                <Upload className='' trigger={getFileInfo} />
-            </div>
+                    )
+            }
         </div>
     )
 }
