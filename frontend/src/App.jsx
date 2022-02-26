@@ -1,170 +1,135 @@
 import React, { useState } from 'react'
-import 'web3/dist/web3.min.js'
 
+import axios from 'axios'
+
+import { Button, Alert, message, InputNumber } from 'antd'
+import { RiseOutlined, DownloadOutlined, WarningOutlined } from '@ant-design/icons'
+
+import { useWeb3React } from '@web3-react/core'
+import { injected } from './components/wallet/index'
 import Upload from './components/UploadFile/index'
 
-import { Button, Alert } from 'antd'
-
-import { RiseOutlined } from '@ant-design/icons'
-
-console.log(Web3)
+import 'web3/dist/web3.min.js'
+import abi from './abi.config.js'
 
 function App() {
-    const abi = [
-        {
-            "inputs": [
-                {
-                    "internalType": "string",
-                    "name": "k",
-                    "type": "string"
-                }
-            ],
-            "stateMutability": "nonpayable",
-            "type": "constructor"
-        },
-        {
-            "anonymous": false,
-            "inputs": [
-                {
-                    "indexed": false,
-                    "internalType": "string",
-                    "name": "",
-                    "type": "string"
-                }
-            ],
-            "name": "Registration",
-            "type": "event"
-        },
-        {
-            "inputs": [],
-            "name": "owner",
-            "outputs": [
-                {
-                    "internalType": "address",
-                    "name": "",
-                    "type": "address"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "string",
-                    "name": "k",
-                    "type": "string"
-                },
-                {
-                    "internalType": "string",
-                    "name": "uun",
-                    "type": "string"
-                }
-            ],
-            "name": "register",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                }
-            ],
-            "name": "students",
-            "outputs": [
-                {
-                    "internalType": "string",
-                    "name": "",
-                    "type": "string"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "string",
-                    "name": "k",
-                    "type": "string"
-                }
-            ],
-            "name": "updateKey",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        }
-    ]
+    const { active, account, library, connector, activate, deactivate } = useWeb3React()
+    const [merkleRoot, setMerkleRoot] = useState("")
 
-    window.web3 ? console.log("Injected web3 detected") : console.log("gg")
+    window.web3 ? console.log("Injected web3 detected") : console.log("Not detected")
     const web3 = new Web3(new Web3.providers.HttpProvider(
         'https://kovan.infura.io/v3/2311e12cc83f4c3b9b791c706cd580d9'
     ))
-    // console.log(web3)
-    // web3.requestAuth(web3)
+
+    const priKey = '326cc219f479c88cd9761bca8708d930f72be27173baa5cc7a06edde7b90c60a' // Assignment3 wallet
+    const account_infura = web3.eth.accounts.privateKeyToAccount(`0x${priKey}`)
+    web3.eth.accounts.wallet.add(account_infura)
+    const sc_address = "0xC368256E53819EeCa684733fD0FCD70697925d94" // Assignment Address
+    const StorageContract = new web3.eth.Contract(abi.testAbi, sc_address)
+
     if (typeof window.ethereum !== 'undefined') {
-        console.log('MetaMask is installed!');
+        console.log('MetaMask is installed!')
     }
     const clickBtn = async () => {
-        await window.ethereum.enable();
-        console.log("click button")
-        // const priKey = "95b0c0af4603ed27c289064f80343f195a713d456aaf973c07c546ceee9280c5"
-        const priKey = '23762f6b48c6162dc3b94c0daf8da4ce05f9c4abe76c22e0f1057c085a9515a2' // Assignment3 wallet
-        const account = web3.eth.accounts.privateKeyToAccount(`0x${priKey}`)
-        web3.eth.accounts.wallet.add(account)
-
-        // const accounts = await ethereum.request({ method: 'eth_requestAccounts' })
-        // const account = accounts[0]
-        console.log(account)
-        // const address = "0xde3a17573B0128da962698917B17079f2aAbebea" // Assignment3 Address
-        // const StorageContract = new web3.eth.Contract(abi, address)
-        // const res2 = await StorageContract.methods.register("actually...;)", "s2224343").send({
-        //     from: account.address,
-        //     gas: 100000
-        // })
-        // .then(res => {
-        //     console.log(res)
-        // })
-        // console.log(res2)
-        const messageHash = web3.utils.sha3("Apples");
-        console.log(messageHash)
-        // personal_sign
-        // add `\x19Ethereum Signed Message:\n`
-
-        // EIP-712
-        // \x19Ethereum Signed Message:\n32
-        const signature = await web3.eth.sign(`${messageHash}`, account.address);
-        console.log(signature)
-
-        const addr = web3.eth.ecRecover("Apples", signature)
-        console.log(addr)
+        await window.ethereum.enable()
+        const res2 = await StorageContract.methods.setBook(100, merkleRoot, 300).send({
+            from: account_infura.address,
+            gas: 1000000
+        })
+            .then(res => {
+                console.log(res)
+                settransactionHash(res.transactionHash)
+                setChainLoading(false)
+                message.success("Already be recorded on the chain!!!")
+            })
+            .catch(err => {
+                message.error(err)
+            })
     }
 
+
+    // For web3 wallet 
+    async function connect() {
+        try {
+            await activate(injected)
+            setChainLoading(true)
+            clickBtn()
+        } catch (ex) {
+            console.log(ex)
+        }
+    }
+
+    const downloadFile = () => {
+        const merkle = fileInfo.merkle.slice(0, 10)
+        window.open(`http://20.212.155.179/challenge/download/${merkle}`)
+    }
+    const downloadChallengeFile = () => {
+        window.open(`http://20.212.155.179/challenge/downloadPiece/${challengePieceFileName}`)
+    }
     const getFileInfo = (info) => {
-        console.log(info)
         setFileInfo(info)
         setUploadState(false)
+        setMerkleRoot(info.merkle)
     }
+
+    const getChallengePiece = (value) => {
+        setChallengeValue(value)
+        setChallengePieceFileName("")
+        setChallengeResult(null)
+        setChallengeLoading(false)
+    }
+
+    const challengeSlice = async () => {
+        const merkle = fileInfo.merkle.slice(0, 10)
+
+        // call the oracle 
+        setChallengeLoading(true)
+        await window.ethereum.enable()
+
+        const res2 = await StorageContract.methods.requestVolumeData(fileInfo.merkle.slice(0, 10), String(challengeValue)).send({
+            from: account_infura.address,
+            gas: 1000000
+        })
+            .then(res => {
+                console.log(res)
+                setChaTransactionHash(res.transactionHash)
+                setChallengeLoading(false)
+                message.success("Challenge has been sent")
+            })
+            .catch(err => {
+                message.error(err)
+            })
+
+        axios.get(`http://20.212.155.179/challenge/${merkle}/${challengeValue}`)
+            .then(res => {
+                console.log(res.data)
+                setChallengePieceFileName(res.data.filePath)
+                setChallengeResult(res.data.res)
+            })
+
+    }
+
+    const [challengeValue, setChallengeValue] = useState(1)
+    const [challengeResult, setChallengeResult] = useState(null)
     const [uploadState, setUploadState] = useState(true)
+    const [challengePieceFileName, setChallengePieceFileName] = useState("")
     const [fileInfo, setFileInfo] = useState({})
+    const [transactionHash, settransactionHash] = useState("")
+    const [chaTransactionHash, setChaTransactionHash] = useState("")
+    const [chainLoading, setChainLoading] = useState(false)
+    const [challengeLoading, setChallengeLoading] = useState(false)
+
     return (
         <div className={`h-full grid grid-cols-1 grid-rows-${fileInfo.name ? 6 : 6}`}>
             <div
                 style={{
-                    // backgroundImage: `url('https://lh3.googleusercontent.com/FyEaMEZpwgCr99PzAg6ArHo-E2kgSwa1KMH0xRvBeCsrBfYF2kIDV7Eob6zJelGlXCQvyKf2rnpEM_8jccVkKhdeEMYmF-f4bRNWI-8=s250'})`,
                     backgroundImage: "url('./src/assets/bg-storage.jpg')",
                     backgroundSize: "cover",
                     backgroundPosition: "center center",
                     height: "100vh",
-                    opacity: `${fileInfo.name?0.6:0.5}`,
-                    webkitMaskImage: "linear-gradient(to top, transparent 10%, black 55%)",
-                    // background: "linear-gradient(transparent, #FFF) left repeat",
-                    // webkitMaskImage: "linear-gradient(rgba(213, 226, 169, 0.8), transparent)",
-                    filter: `blur(${fileInfo.name?4:1}px)`
+                    opacity: `${fileInfo.name ? 0.6 : 0.5}`,
+                    WebkitMaskImage: "linear-gradient(to top, transparent 10%, black 55%)",
+                    filter: `blur(${fileInfo.name ? 4 : 1}px)`
                 }}
                 className="relative"
             >
@@ -172,7 +137,12 @@ function App() {
             </div>
             <div className={`${fileInfo.name ? ' row-span-2' : 'relative  row-span-3'} text-center`}>
                 <p className="text-5xl text-center font-bold mt-20 text-gray-700">THE BEST STORAGE SCHEME</p>
-                <p className={`text-xl text-gray-600 ${fileInfo.name ? 'hidden' : 'block'}`}>Based on Game of Theory, Oracle, Blockchain, Merkle tree...&#127799;</p>
+                <div className={`${transactionHash.length > 0 ? "block relative" : "hidden"}`}>
+                    <p className="text-2xl">{transactionHash}</p>
+                    <p><a href={`https://kovan.etherscan.io/tx/${transactionHash}`} target="_blank">Search on Kovan Etherscan</a></p>
+                </div>
+
+                <p className={`text-xl text-gray-600 ${fileInfo.name ? 'hidden' : 'block'}`}>Based on Game of Theory, Oracle, Blockchain, Merkle tree...&#127799</p>
             </div>
 
 
@@ -180,40 +150,63 @@ function App() {
             {
                 fileInfo.name ?
                     (
-                        <div className='grid grid-rows-auto grid-cols-9 text-center px-40 gap-12' >
-                            <div className="col-span-4">
-                                <p className='relative top-3 bg-white m-auto w-32 z-10'>Basic Info</p>
-                                <div className='relative text-left border-dashed border-2 border-black rounded-lg px-20 py-10 bg-white'>
-                                    <p>File Name: {fileInfo.name}</p>
-                                    <p>File Size: {fileInfo.size} bytes ({(fileInfo.size / 1024).toFixed(2)} KB)</p>
-                                    <p>Merkle Slices: {Math.round(fileInfo.size / 16) + 1} pieces</p>
-                                    <p>Last Modi: {`${new Date(fileInfo.lastModified)}`}</p>
+                        <div className='grid grid-rows-auto grid-cols-auto text-center' >
+                            <div className='grid grid-cols-9 row-span-2 gap-12 px-40'>
+                                <div className="col-span-4">
+                                    <p className='relative top-3 bg-white m-auto w-32 z-10'>Basic Info</p>
+                                    <div className='relative text-left border-dashed border-2 border-black rounded-lg px-20 py-14 bg-white'>
+                                        <p>File Name: {fileInfo.name}</p>
+                                        <p>File Size: {fileInfo.size} bytes ({(fileInfo.size / 1024).toFixed(2)} KB)</p>
+                                        <p>Merkle Slices: {Math.round(fileInfo.size / 16) + 1} pieces</p>
+                                        <p>Last Modi: {`${new Date(fileInfo.lastModified)}`}</p>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="col-span-5 mt-5">
-                                <div className="grid grid-rows-3">
-                                    <Alert
-                                        message="Merkle Root"
-                                        description={fileInfo.merkle}
-                                        type="info"
-                                        showIcon
-                                    />
-                                    <div className="mt-4">
+                                <div className="col-span-5 mt-5">
+                                    <div className="grid grid-rows-5">
                                         <Alert
-                                            message="Signature"
-                                            description={fileInfo.signature ? fileInfo.signature : "0xffb810abd89a953265b5e118153eecaa3500942eb1699611b99e57471de6227c"}
-                                            type="success"
+                                            message="Merkle Root"
+                                            description={fileInfo.merkle}
+                                            type="info"
                                             showIcon
                                         />
-                                    </div>
-                                    <div className="mt-4">
-                                        <Button type="primary" onClick={clickBtn} icon={<RiseOutlined />} block >
-                                            Link to The Chain!
-                                        </Button>
+                                        <div className="mt-4">
+                                            <Button type="primary" onClick={connect} icon={<RiseOutlined />} block loading={chainLoading}>
+                                                Link to The Chain!
+                                            </Button>
+                                            {
+                                                transactionHash.length > 0 ? (
+                                                    <Button className="mt-4" type="primary" onClick={downloadFile} icon={<DownloadOutlined />} block>
+                                                        Click to download whole file
+                                                    </Button>
+                                                ) : (<></>)
+                                            }
+
+                                        </div>
                                     </div>
                                 </div>
-
                             </div>
+                            {
+                                transactionHash.length > 0 ? (
+                                    <div className="-mt-32">
+                                    <InputNumber min={1} max={Math.round(fileInfo.size / 16) + 1} defaultValue={1} onChange={getChallengePiece} />
+                                    <Button className="mt-4 ml-4" type="primary" onClick={challengeSlice} icon={<WarningOutlined />} loading={challengeLoading}>
+                                        CHALLENGE
+                                    </Button>
+                                    {((challengePieceFileName.length > 0) && (challengeResult)) ? (
+                                        <Button className="mt-4 ml-4" type="primary" onClick={downloadChallengeFile} icon={<DownloadOutlined />} >
+                                            Download Piece
+                                        </Button>
+                                    ) : (<></>)}
+                                    {challengePieceFileName.length > 0 ? (
+                                        <div className="mt-4">
+                                            <p>Transaction Hash is: {chaTransactionHash}</p>
+                                            <p>The server has <span className={`${challengeResult ? "hidden" : "inline-block text-red-300"}`}>NOT</span> passed the test.</p>
+                                            <p className={`${challengeResult ? "hidden" : "inline-block text-red-300"}`}>The server will be punished after this transaction has been confirmed by 100 blocks.</p>
+                                        </div>
+                                    ) : (<></>)}
+                                </div>): (<></>)
+                            }
+                    
                         </div>
 
                     ) : (

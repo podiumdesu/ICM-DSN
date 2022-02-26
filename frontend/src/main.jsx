@@ -7,9 +7,21 @@ import 'antd/dist/antd.css';
 
 window.Buffer = Buffer
 
+import { Web3ReactProvider, useWeb3React } from "@web3-react/core";
+import { Web3Provider } from "@ethersproject/providers";
+import MetamaskProvider from './components/MetamaskProvider/index'
+
+function getLibrary(provider) {
+  const library = new Web3Provider(provider);
+  library.pollingInterval = 12000;
+  return library;
+}
+
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  <Web3ReactProvider getLibrary={getLibrary}>
+    <MetamaskProvider>
+      <App />
+    </MetamaskProvider>
+  </Web3ReactProvider>,
   document.getElementById('root')
 )
