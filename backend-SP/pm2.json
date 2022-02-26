@@ -1,0 +1,39 @@
+{
+    "apps": [
+      {
+        "name": "citaNODE-DEV-SERVER",
+        "cwd": "./dist",
+        "script": "app.js",
+        "watch": false,
+        "ignore_watch": ["node_modules", "build", "logs"],
+        "log_date_format": "YYYY-MM-DD HH:mm Z",
+        "out_file": "/data/logs/cita-node/out.log", 
+        "error_file": "/data/logs/cita-node/error.log", 
+        "max_memory_restart": "2G", 
+        "env": {
+          "NODE_ENV": "dev"
+        },
+        "exec_mode": "cluster", 
+        "instances": "max", 
+        "autorestart": true 
+      },
+      
+      {
+        "name": "citaNODE-PROD-SERVER",
+        "cwd": "./dist",
+        "script": "app.js",
+        "watch": false,
+        "ignore_watch": ["node_modules", "build", "logs"],
+        "log_date_format": "YYYY-MM-DD HH:mm Z",
+        "out_file": "/data/logs/cita-node/out.log", 
+        "error_file": "/data/logs/cita-node/error.log", 
+        "max_memory_restart": "2G", 
+        "env": {
+          "NODE_ENV": "prod"
+        },
+        "exec_mode": "cluster", 
+        "instances": "max", 
+        "autorestart": true
+      }
+    ]
+  }
