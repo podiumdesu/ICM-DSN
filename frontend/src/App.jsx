@@ -24,7 +24,7 @@ function App() {
     const priKey = '326cc219f479c88cd9761bca8708d930f72be27173baa5cc7a06edde7b90c60a' // Assignment3 wallet
     const account_infura = web3.eth.accounts.privateKeyToAccount(`0x${priKey}`)
     web3.eth.accounts.wallet.add(account_infura)
-    const sc_address = "0xC368256E53819EeCa684733fD0FCD70697925d94" // Assignment Address
+    const sc_address = "0xf98F2945117F782d232b0A0A4aBc7b08207E7c7f" // Assignment Address
     const StorageContract = new web3.eth.Contract(abi.testAbi, sc_address)
 
     if (typeof window.ethereum !== 'undefined') {
@@ -32,7 +32,7 @@ function App() {
     }
     const clickBtn = async () => {
         await window.ethereum.enable()
-        const res2 = await StorageContract.methods.setBook(100, merkleRoot, 300).send({
+        const res2 = await StorageContract.methods.setTask(100, merkleRoot, 300).send({
             from: account_infura.address,
             gas: 1000000
         })
@@ -86,7 +86,7 @@ function App() {
         setChallengeLoading(true)
         await window.ethereum.enable()
 
-        const res2 = await StorageContract.methods.requestVolumeData(fileInfo.merkle.slice(0, 10), String(challengeValue)).send({
+        const res2 = await StorageContract.methods.requestChallengeResult(fileInfo.merkle.slice(0, 10), String(challengeValue)).send({
             from: account_infura.address,
             gas: 1000000
         })

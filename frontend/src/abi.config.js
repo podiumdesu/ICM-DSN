@@ -166,6 +166,24 @@ export default {
             "type": "function"
         },
         {
+            "inputs": [
+                {
+                    "internalType": "string",
+                    "name": "merkle",
+                    "type": "string"
+                },
+                {
+                    "internalType": "string",
+                    "name": "slice",
+                    "type": "string"
+                }
+            ],
+            "name": "requestChallengeResult",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
             "inputs": [],
             "name": "requestIdShow",
             "outputs": [
@@ -201,16 +219,24 @@ export default {
             "inputs": [
                 {
                     "internalType": "string",
-                    "name": "merkle",
-                    "type": "string"
-                },
-                {
-                    "internalType": "string",
-                    "name": "slice",
+                    "name": "api",
                     "type": "string"
                 }
             ],
-            "name": "requestVolumeData",
+            "name": "setExternalApi",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "string",
+                    "name": "pk",
+                    "type": "string"
+                }
+            ],
+            "name": "setPk",
             "outputs": [],
             "stateMutability": "nonpayable",
             "type": "function"
@@ -233,33 +259,7 @@ export default {
                     "type": "uint256"
                 }
             ],
-            "name": "setBook",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "string",
-                    "name": "api",
-                    "type": "string"
-                }
-            ],
-            "name": "setExternalApi",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "string",
-                    "name": "pk",
-                    "type": "string"
-                }
-            ],
-            "name": "setPk",
+            "name": "setTask",
             "outputs": [],
             "stateMutability": "nonpayable",
             "type": "function"
