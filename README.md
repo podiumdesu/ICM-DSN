@@ -9,10 +9,10 @@ Here is our implementation. More details can be found in our paper.
 ```bash
 .
 ├── README.md          # This file 😊
-├── backend-SP				 # service provided by Storage Provider: store file📦 / download file⏬ APIs
+├── backend-SP			  # service provided by Storage Provider: store file📦 / download file⏬ APIs
 ├── backend-oracle     # external adapter API 🏠
-├── contracts					 # smart contract. You can use Remix to compile and deploy it.
-└── frontend					 # frontend with nice user interaction.  upload⏫ / download⏬ / on-chain operation👝
+├── contracts			  # smart contract. You can use Remix to compile and deploy it.
+└── frontend			  # frontend with nice user interaction.  upload⏫ / download⏬ / on-chain operation👝
 ```
 
 ## B. Workflow
